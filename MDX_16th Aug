@@ -1,0 +1,216 @@
+MDX (MultiDimensional eXpressions)
+========================================================
+–> To work with Normal two – dimensional applications, two-dimensional programming languages are enough ( C, C ++, .NET …etc)
+
+–> To work with Two – Dimensional databases, two- dimensional Query language SQL is wrought (Oracle SQL, T – SQL, Teradata SQL – etc.)
+
+–> To work with multidimensional allocations and multidimensional databases the above specified or not enough so we go for a separate expression and Query language ‘ MDX ‘.
+
+Important terminology in MDX :
+=========================================================
+a) Member: Dimension attribute is called member
+
+–> Syntax:-
+[Dimension table name].[Attribute Name]
+             Ex:        
+		 [Product].[Product Name]
+		 [Location].[Location name]
+
+
+Measure: Fact attribute is called Measure
+============================================
+Syntax: [Measures].[Measures Name]
+Ex:         
+	[Measures].[Actual Cost]
+	[Measures].[Estimated Cost]
+
+
+
+TUPLE: Collection of Measures or Members is called Tuple ()
+==========================================================
+a. Starts with (
+b. Ends with   )
+
+Ex:      
+	([Measures] . [ Actual Cost ],[ Measures ] . [ Estimated Cost ] )
+	
+	([]. [] , [].[])
+
+
+SET:     Group of Tuples are called as SET  {}
+==========================================================
+a. Stores with {
+b. Ends with    }
+
+
+Ex:          
+	{
+	( [ Measures ] . [ Actual Cost ] , [ Measures ] . [ Estimated Cost ] ),
+	( [ Measures ] . [ Actual Cost ] , [ Measures ] . [ Estimated Cost ] )
+	}
+
+	{[ Measures ] . [ Actual Cost ] , [ Measures ] . [ Estimated Cost }
+
+
+	{( [ Measures ] . [ Actual Cost ] , [ Measures ] . [ Estimated Cost ] )}
+	
+
+
+
+
+MDX Query
+==================================================================
+1. Generally, MDX queries we write in analysis services cube database
+							------------------
+
+2. For retrieving data from cube database we use Select statements.
+
+Syntax:
+
+Select { Measures / Members } ON columns , { Measures / Members } ON rows
+From < cube name > where < condition > ;
+
+
+SELECT {([DIMENSSION].[COUNTRY])}  ON COLUMNS , {([DIMENSSION].[EID],[DIMENSSION].[ENAME])} ON ROWS 
+FROM [Scan Adminstrator]
+
+
+		INDIA   US    UK
+
+EID  NAME 
+1	NITIN	1	0	0
+2	JATIN	0	1	0
+3	DIVYA	0	0	1
+4		1	1	1
+5
+6
+	 
+
+
+
+Some Functions In MDX And There Meanings:
+There  are two types functions
+================================================
+1) Some Functions takes Parameters
+
+Ex:  TOP COUNT, 
+     BOTTOM COUNT, 
+     ISEMPTY etc
+
+(Top count),  (Bottom Count)
+
+
+
+2) Functions without Parameters
+=========================================
+Ex: 
+
+	MEMBERS,ALLMEMBERS,CHILDREN,PREVMEMBER,CURRENTMEMBER Etc...
+
+.MEMBERS: It displays the child members without including the total.
+.ALLMEMBERS: Display All members and their total.
+.PREVMEMBER: Display previous members to the current member.
+.CURRENTMEMBER: Display the current cell member value.
+
+
+
+
+3) Functions with Parameters
+======================================================
+ISEMPTY: It verifies whether the member is empty or not.
+Syntax: Is Empty ({set})
+
+TOPCOUNT: Display Top values.
+Syntax: Top Count ({set}, value)
+
+BOTTOMCOUNT: Display bottom count of values
+Syntax: Bottom Count (set, value)
+
+FILTER: It filters the given set based on the condition
+Syntax: Filter (set, condition)
+
+Filter ({set}, condition)
+
+
+ORDER: It displays the set by keeping a descending & ascending on the given column.
+DISTINCT ( ): It displays the set values
+DISTINCT ( {set} )
+
+4) Working with Hierarchies
+
+We refer hierarchies member values in 2 ways.
+
+a. [Dimension] . [Hierarchy] . [Members]
+b. [Dimension] . [Hierarchy] . [Level] . [Members]
+NOTE: If we don’t specify the level, it displays all member values.
+
+CROSS JOIN: CROSS JOIN ( {set} , {set} ) (OR) {set} * {set}
+
+
+
+FROM CROSS JOIN ({[COUNTRY DIM].[ATTRIBUTES].[COUNTRY NAME]}, {})
+
+
+Important MDX queries:
+Navigation:
+SSMS –> Analysis Services –> TEXTILES_CUBE –> RC –> New Query –> MDX
+
+
+
+MDX Queries
+1) DISPLAY FIRST MEASURE SUM
+
+Syntax: Select from [CUB NAME]
+
+2) DISPLAY NO. OF ROWS IN THE CUBE
+
+Syntax: Select [Measures] . [TEXT FACT COUNT] on columns from [TEXTFILES_CUBE]
+
+3) DISPLAY ALL BRANCHES ACTUAL COST
+
+Syntax: Select [Measures] . [ActualCost] on columns , [Product] . [Brand] on rows from [DSV_textfiles_cube]
+Actual cost    9800.
+4) DISPALY BRANCHES AND THEIR ACTUAL COST
+Syntax: Select [Measures] . [ActualCost] on columns , [Product] . [Brand] . children on rows from [TextFile_cube]
+5) DISPALY ALL BRANCHE ACTUAL COST AND SUM OF ALL ACTUAL COST
+Syntax: Select [Measures] . [ActualCost] on columns , [Product] . [Brand] . ALLMEMBERS on rows from [TEXTFILES_CUBE]
+6) DISPLAYING EVERY RAW MATERIAL AND LOCATION, THEIR ACTUAL COST
+Syntax: Select ([Measures] . [ActualCost] , [Measures] . [Estimated cost]) on columns , ([RawMaterial] . [Rawmaterial ID] . children [Location] . [Loc Name] . children) on Rows from [TEXTFILES_CUBE]
+7) DISPLAY THE FIRST RAW MATERIAL ACTUAL COST:
+Syntax: Select [Measures] . [ActualCost] on columns . [RawMaterial] . [Rawmaterial ID]
+first child on rows from [TEXTFILES_CUBE]
+8) DISPLAYING TOP TWO VALUES OF THE LOCATION
+Syntax: Select [Measures] . [ActualCost] on columns , TopCount ([Location] . [ LocName] . children,2 ) on rows from [TEXTFILES_CUBE]
+9) DISPLAYING BOTTOM TWO LOCATION VALUES
+Syntax: Select [Measures] . [ActualCost] on columns , Bottom Count ([Location] . [LocName] . children, 2 ) on rows from [TEXTFILES_CUBE]
+10) DISPLAY THE LOCATION TOOLS ACTUAL COST is > 1000
+Syntax: Select [Measures] . [ActualCost] on columns , filter ([Location] . [ LocName] . children,    [Measures] . [ActualCost] > 1000) on rows from [TEXTFILES_CUBE]
+11) DISPLAY THE DATA IN ACTUAL COST SORTED ORDER IN ASC
+Syntax: Select [Measures] . [ActualCost] on columns , order ([Location] . [ LocName] . children,    [Measures] . [ActualCost] , ASC ] on rows
+ 12) DISPLAY THE CRO PRODUCT OF LOCATION PRODUCT AS WELL AS THEIR ACTUAL, ESTIMATED COST.
+Syntax: Select {[Measures] . [ActualCost] , [Measures] . [Estimated cost]} on columns, cross join ([Location] . [ LocName] . children , [Product] . [Product Name] . children) on rows from [TEXTFILES_CUBE]
+                                OR
+Select {[Measures] . [ActualCost] , [Measures] . [Estimated cost]} on columns, cross join ([Location] . [ LocName] . children) * ([EProduct] . [Product Name] . children) on rows from [TEXTFILES_CUBE]
+13) DISPLAY DISTINCT FROM DISTINCTWISE VALUES AND LACATIONWISE
+Syntax: Select {[Measures] . [ActualCost] , [Measures] . [Estimated cost]} on columns, DISTINCT ([Location] . [ LocName] . children , [Product] . [Product Name] . children) on rows from [TEXTFILES_CUBE]
+14) DISPLAY 2009 YEAR ACTUAL COST SUM
+Syntax: Select [Measures] . [ActualCost] on columns from [TextFile_Cube] where [Time] .[Year] . & [2009]
+OR
+Select [Measures] . [ActualCost] on columns , [Location] . [ LocName] . children on rows from [DSV_TextFiles_cube] where {[Time] . [Year] . & [2009]}
+
+Conditional Expressions
+
+IF: IF ( , success stmt , failed stmt )
+Eg: IF ([Measure] .[ActualCost] – [Measures] . [Estimated cost] > 0,1,0)
+CASE: Evaluates against multiple conditions
+CASE
+When < condition1 > then < statement1 >
+When < condition2 > then < statement2 >
+When < condition3 > then < statement3 >
+When < condition4 > then < statement4 >
+ELSE < statement 5 >
+END
+Ex: Case when [Measure] .[ActualCost] – [Measures] . [Estimated cost] > 0 Then -1 / where [Measure] .[ActualCost] – [Measures] . [Estimated cost] < 0 Then 1 / When [Measure] .[ActualCost] – [Measures] . [Estimated cost] = 0 Then 0
+END   
+
+
